@@ -33,9 +33,7 @@ jobs:
         run: mvn --batch-mode clean package
 
       - name: Check jar
-        run: |
-          ls -lh target
-          test -f target/my-app.jar
+        run: test -f target/personal-website-backend.jar
 
       - name: Configure SSH
         env:
