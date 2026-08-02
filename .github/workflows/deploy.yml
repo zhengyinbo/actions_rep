@@ -62,7 +62,7 @@ jobs:
             -o ConnectTimeout=20 \
             -i ~/.ssh/deploy_key \
             -P "$SERVER_PORT" \
-            target/my-app.jar \
+            target/personal-website-backend.jar \
             "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/my-app.jar.new"
 
       - name: Deploy application
