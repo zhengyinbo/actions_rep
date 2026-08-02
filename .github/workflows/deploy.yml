@@ -63,7 +63,7 @@ jobs:
             -i ~/.ssh/deploy_key \
             -P "$SERVER_PORT" \
             target/personal-website-backend.jar \
-            "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/my-app.jar.new"
+            "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/personal-website-backend.jar.new"
 
       - name: Deploy application
         env:
@@ -80,5 +80,5 @@ jobs:
             -p "$SERVER_PORT" \
             "$SERVER_USER@$SERVER_HOST" \
             "mv '$SERVER_PATH/my-app.jar.new' \
-              '$SERVER_PATH/my-app.jar' && \
+              '$SERVER_PATH/personal-website-backend.jar' && \
               '$SERVER_PATH/deploy.sh'"
