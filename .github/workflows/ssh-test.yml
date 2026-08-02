@@ -1,0 +1,52 @@
+name: SSH Connection Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s' "$SSH_PRIVATE_KEY_B64" \
+          | base64 --decode \
+          > ~/.ssh/deploy_key
+
+          chmod 600 ~/.ssh/deploy_key
+
+          # 先验证私钥文件是否有效
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
+
+          ssh-keyscan \
+          -p "$SERVER_PORT" \
+          "$SERVER_HOST" \
+          >> ~/.ssh/known_hosts
+
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            -i ~/.ssh/deploy_key \
+            -p "$SERVER_PORT" \
+            "$SERVER_USER@$SERVER_HOST" \
+            "echo 'SSH connection successful' && hostname && whoami"
