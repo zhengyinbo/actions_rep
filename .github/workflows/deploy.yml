@@ -38,7 +38,7 @@ jobs:
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_SSH_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
         run: |
           mkdir -p ~/.ssh
@@ -56,14 +56,14 @@ jobs:
       
           ssh-keyscan \
             -p "$SERVER_PORT" \
-            "$SERVER_HOST" \
+            "$SERVER_SSH_KEY_B64" \
             >> ~/.ssh/known_hosts
       
           chmod 600 ~/.ssh/known_hosts
 
       - name: Upload jar
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_SSH_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PATH: ${{ secrets.SERVER_PATH }}
@@ -75,11 +75,11 @@ jobs:
             -i ~/.ssh/deploy_key \
             -P "$SERVER_PORT" \
             target/personal-website-backend.jar \
-            "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/personal-website-backend.jar.new"
+            "$SERVER_USER@$SERVER_SSH_KEY_B64:$SERVER_PATH/personal-website-backend.jar.new"
 
       - name: Deploy application
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_SSH_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PATH: ${{ secrets.SERVER_PATH }}
@@ -90,7 +90,7 @@ jobs:
             -o ServerAliveCountMax=3 \
             -i ~/.ssh/deploy_key \
             -p "$SERVER_PORT" \
-            "$SERVER_USER@$SERVER_HOST" \
+            "$SERVER_USER@$SERVER_SSH_KEY_B64" \
             "mv '$SERVER_PATH/personal-website-backend.jar.new' \
               '$SERVER_PATH/personal-website-backend.jar' && \
               '$SERVER_PATH/deploy.sh'"
