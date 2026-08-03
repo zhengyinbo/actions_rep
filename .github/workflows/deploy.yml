@@ -60,22 +60,22 @@ jobs:
             >> ~/.ssh/known_hosts
       
           chmod 600 ~/.ssh/known_hosts
-            - name: Upload jar
-              env:
-                SERVER_HOST: ${{ secrets.SERVER_HOST }}
-                SERVER_PORT: ${{ secrets.SERVER_PORT }}
-                SERVER_USER: ${{ secrets.SERVER_USER }}
-                SERVER_PATH: ${{ secrets.SERVER_PATH }}
-              run: |
-                scp \
-                  -o BatchMode=yes \
-                  -o IdentitiesOnly=yes \
-                  -o ConnectTimeout=20 \
-                  -i ~/.ssh/deploy_key \
-                  -P "$SERVER_PORT" \
-                  target/personal-website-backend.jar \
-                  "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/personal-website-backend.jar.new"
-
+            
+      - name: Upload jar
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        run: |
+          scp \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            -i ~/.ssh/deploy_key \
+            -P "$SERVER_PORT" \
+             target/personal-website-backend.jar \
+             "$SERVER_USER@$SERVER_HOST:$SERVER_PATH/personal-website-backend.jar.new" 
       - name: Deploy application
         env:
           SERVER_SSH_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
