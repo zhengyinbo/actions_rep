@@ -37,18 +37,28 @@ jobs:
 
       - name: Configure SSH
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SSH_PRIVATE_KEY_B64: ${{ secrets.SERVER_SSH_KEY_B64 }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+      
+          printf '%s' "$SSH_PRIVATE_KEY_B64" \
+            | tr -d '\r\n ' \
+            | base64 --decode \
+            > ~/.ssh/deploy_key
+      
           chmod 600 ~/.ssh/deploy_key
-
-          ssh-keyscan -p "$SERVER_PORT" "$SERVER_HOST" \
+      
+          # 必须保留：在上传前确认私钥确实有效
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
+      
+          ssh-keyscan \
+            -p "$SERVER_PORT" \
+            "$SERVER_HOST" \
             >> ~/.ssh/known_hosts
+      
           chmod 600 ~/.ssh/known_hosts
 
       - name: Upload jar
@@ -59,6 +69,8 @@ jobs:
           SERVER_PATH: ${{ secrets.SERVER_PATH }}
         run: |
           scp \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
             -o ConnectTimeout=20 \
             -i ~/.ssh/deploy_key \
             -P "$SERVER_PORT" \
